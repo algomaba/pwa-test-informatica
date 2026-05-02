@@ -1,7 +1,7 @@
 {
   "name": "Test de Informática",
   "short_name": "Test Info",
-  "start_url": "index.html",
+    "start_url": "/",
   "display": "standalone",
   "background_color": "#FFF7ED",
   "theme_color": "#FFF7ED",
