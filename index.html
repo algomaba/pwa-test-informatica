@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Informática</title>
+
+<style>
+body {
+    font-family: sans-serif;
+    background: #FFF7ED; /* FONDO GENERAL */
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    margin: 0;
+}
+
+.card {
+    background: #FFF7ED; /* MISMO TONO QUE EL FONDO */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    max-width: 600px;
+    width: 100%;
+    border: 1px solid #f0e0d2;
+}
+
+h2 {
+    text-align: center;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 20px;
+    color: #444;
+    font-weight: bold;
+}
+
+button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+.question {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+label {
+    display: block;
+    margin: 8px 0;
+    cursor: pointer;
+}
+
+.correct {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.wrong {
+    color: #dc3545;
+}
+
+.feedback {
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+#result {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 18px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>Test de conocimientos Informáticos</h2>
+    <div class="subtitle">INFORMÁTICA Q ALUCHE</div>
+
+    <div id="quiz-container"></div>
+
+    <button id="btn-action">Finalizar Test</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+const questions = [
+
+{ q: "¿Qué es un navegador?", a: ["Un antivirus", "Un programa para acceder a páginas web", "Un editor de texto", "Un firewall"], correct: 1 },
+{ q: "¿Qué es el phishing?", a: ["Un ataque para saturar un servidor", "Un método para robar datos haciéndose pasar por una entidad legítima", "Un virus autorreplicable", "Un cifrado"], correct: 1 },
+{ q: "¿Qué protocolo se usa para enviar correo?", a: ["POP3", "SMTP", "IMAP", "FTP"], correct: 1 },
+{ q: "¿Qué campo permite enviar copia oculta?", a: ["CC", "CCO", "Para", "Responder a"], correct: 1 },
+{ q: "¿Qué es un archivo PDF?", a: ["Un archivo de imagen", "Un formato de documento portátil", "Un archivo ejecutable", "Un archivo comprimido"], correct: 1 },
+
+{ q: "¿Qué combinación guarda un documento en Word?", a: ["Ctrl + C", "Ctrl + S", "Ctrl + P", "Ctrl + X"], correct: 1 },
+{ q: "¿Qué opción permite cambiar el tipo de letra en Word?", a: ["Insertar", "Fuente", "Vista", "Revisar"], correct: 1 },
+{ q: "¿Qué es un salto de página?", a: ["Eliminar texto", "Cambiar fuente", "Pasar a una nueva página", "Insertar imagen"], correct: 2 },
+{ q: "¿Qué herramienta corrige errores ortográficos?", a: ["Diseño", "Revisar", "Insertar", "Archivo"], correct: 1 },
+
+{ q: "¿Qué es una celda en Excel?", a: ["Un gráfico", "Una intersección de fila y columna", "Una hoja", "Una fórmula"], correct: 1 },
+{ q: "¿Qué símbolo inicia una fórmula en Excel?", a: ["#", "=", "+", "$"], correct: 1 },
+{ q: "¿Qué función suma valores?", a: ["PROMEDIO", "SUMA", "CONTAR", "MAX"], correct: 1 },
+{ q: "¿Qué es una hoja de cálculo?", a: ["Documento de texto", "Presentación", "Tabla de datos", "Imagen"], correct: 2 },
+
+{ q: "¿Qué programa se usa para presentaciones?", a: ["Word", "Excel", "PowerPoint", "Access"], correct: 2 },
+{ q: "¿Qué es una diapositiva?", a: ["Una hoja de Excel", "Una página de presentación", "Un archivo", "Un gráfico"], correct: 1 }
+
+];
+
+let currentQuestions = [];
+
+function shuffle(array) {
+    return [...array].sort(() => Math.random() - 0.5);
+}
+
+function initQuiz() {
+    const container = document.getElementById('quiz-container');
+    const resultDiv = document.getElementById('result');
+
+    container.innerHTML = '';
+    resultDiv.innerHTML = '';
+
+    currentQuestions = shuffle(questions);
+
+    currentQuestions.forEach((item, index) => {
+        let qDiv = document.createElement('div');
+        qDiv.className = 'question';
+        qDiv.innerHTML = `<p><strong>${index + 1}. ${item.q}</strong></p>`;
+        
+        item.a.forEach((opt, i) => {
+            qDiv.innerHTML += `
+                <label>
+                    <input type="radio" name="q${index}" data-correct="${i === item.correct}">
+                    ${opt}
+                </label>`;
+        });
+
+        qDiv.innerHTML += `<div class="feedback"></div>`;
+        container.appendChild(qDiv);
+    });
+}
+
+function checkAnswers() {
+    const questionsDiv = document.querySelectorAll('.question');
+    let score = 0;
+
+    questionsDiv.forEach((qDiv) => {
+        const selected = qDiv.querySelector('input:checked');
+        const allOptions = qDiv.querySelectorAll('input');
+        const feedback = qDiv.querySelector('.feedback');
+
+        let correctText = "";
+
+        allOptions.forEach(opt => {
+            const label = opt.parentElement;
+            opt.disabled = true;
+
+            if (opt.dataset.correct === "true") {
+                correctText = label.innerText;
+                label.classList.add("correct");
+            }
+
+            if (opt.checked && opt.dataset.correct !== "true") {
+                label.classList.add("wrong");
+            }
+        });
+
+        if (selected && selected.dataset.correct === "true") {
+            score++;
+        }
+
+        feedback.innerHTML = "✔ Respuesta correcta: " + correctText;
+    });
+
+    const porcentaje = Math.round((score / currentQuestions.length) * 100);
+
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML =
+        "🎯 Puntuación: " + score + "/" + currentQuestions.length +
+        "<br>📊 Resultado: " + porcentaje + "%";
+
+    resultDiv.scrollIntoView({ behavior: "smooth" });
+
+    const btn = document.getElementById('btn-action');
+    btn.innerText = "Repetir Test";
+    btn.onclick = initQuiz;
+}
+
+document.getElementById("btn-action").addEventListener("click", checkAnswers);
+
+initQuiz();
+</script>
+
+</body>
+</html>
